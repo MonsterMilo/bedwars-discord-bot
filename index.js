@@ -60,9 +60,18 @@ client.on('messageCreate', async message => {
 
     try {
       // Fetch UUID from backend
-      const mojangRes = await fetch(`${backendBaseURL}/mojang/${username}`);
-      if (!mojangRes.ok) throw new Error('User not found');
-      const mojangData = await mojangRes.json();
+      const mojangRes = await fetch(`${backendBaseURL}/mojang/${username.toLowerCase()}`);
+      console.log('mojangRes status:', mojangRes.status);
+
+      if (!mojangRes.ok) {
+        const errorText = await mojangRes.text();
+        console.log('mojangRes error text:', errorText);
+        throw new Error('User not found');
+      }
+
+const mojangData = await mojangRes.json();
+console.log('mojangData:', mojangData);
+
 
       const uuid = mojangData.id;
 
