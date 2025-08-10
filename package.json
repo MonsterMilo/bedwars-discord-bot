@@ -1,0 +1,13 @@
+{
+  "name": "bedwars-discord-bot",
+  "version": "1.0.0",
+  "description": "A Discord bot for managing sweats list",
+  "main": "bot.js",
+  "scripts": {
+    "start": "node bot.js"
+  },
+  "dependencies": {
+    "discord.js": "^14.15.3",
+    "dotenv": "^16.4.5"
+  }
+}
