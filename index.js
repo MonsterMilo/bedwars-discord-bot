@@ -9,7 +9,6 @@ app.listen(PORT, () => {
 });
 
 const { Client, GatewayIntentBits } = require('discord.js');
-const fetch = require('node-fetch');
 
 const client = new Client({
   intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent],
