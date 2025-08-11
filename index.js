@@ -9,9 +9,10 @@ app.listen(PORT, () => {
 });
 
 const { Client, GatewayIntentBits } = require('discord.js');
+const fetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
 
 const client = new Client({
-  intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages, GatewayIntentBits.MessageContent],
+  intents: [GatewayIntentBits.Guilds]
 });
 
 const backendBaseURL = "https://bedwars-backend.onrender.com";
@@ -20,7 +21,6 @@ client.once('ready', () => {
   console.log(`Logged in as ${client.user.tag}!`);
 });
 
-// Helper function to calculate star from XP (same as your frontend)
 function calculateStarFromXP(exp) {
   if (exp < 0) return 0;
   let stars = 0;
@@ -40,48 +40,31 @@ function calculateStarFromXP(exp) {
   return stars;
 }
 
-client.on('messageCreate', async message => {
-  if (message.author.bot) return;
+client.on('interactionCreate', async interaction => {
+  if (!interaction.isChatInputCommand()) return;
 
-  if (message.content.startsWith('!addsweat')) {
-    const args = message.content.split(' ');
-    const username = args[1];
+  if (interaction.commandName === 'addsweat') {
+    const username = interaction.options.getString('username');
     const beatenByFlags = {
-      milo: args.includes('--milo'),
-      potat: args.includes('--potat'),
-      aballs: args.includes('--aballs'),
-      zoiv: args.includes('--zoiv'),
+      milo: interaction.options.getBoolean('milo') || false,
+      potat: interaction.options.getBoolean('potat') || false,
+      aballs: interaction.options.getBoolean('aballs') || false,
+      zoiv: interaction.options.getBoolean('zoiv') || false,
     };
 
-    if (!username) {
-      message.reply('Please provide a username. Usage: !addsweat <username> [--milo] [--potat] [--aballs] [--zoiv]');
-      return;
-    }
+    await interaction.deferReply();
 
     try {
-      // Fetch UUID from backend
       const mojangRes = await fetch(`${backendBaseURL}/mojang/${username.toLowerCase()}`);
-      console.log('mojangRes status:', mojangRes.status);
-
-      if (!mojangRes.ok) {
-        const errorText = await mojangRes.text();
-        console.log('mojangRes error text:', errorText);
-        throw new Error('User not found');
-      }
-
-const mojangData = await mojangRes.json();
-console.log('mojangData:', mojangData);
-
-
+      if (!mojangRes.ok) throw new Error('User not found');
+      const mojangData = await mojangRes.json();
       const uuid = mojangData.id;
 
-      // Fetch player stats
       const statsRes = await fetch(`${backendBaseURL}/player/${uuid}`);
       if (!statsRes.ok) throw new Error('Player stats not found');
       const statsJson = await statsRes.json();
       const data = statsJson.player.stats?.Bedwars || {};
 
-      // Compose new sweat entry
       const newSweat = {
         username: mojangData.name,
         star: calculateStarFromXP(data.Experience || 0),
@@ -103,21 +86,17 @@ console.log('mojangData:', mojangData);
         dateAdded: new Date().toISOString(),
       };
 
-      // Send POST request to add sweat
       const postRes = await fetch(`${backendBaseURL}/sweats`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(newSweat),
       });
 
-      if (!postRes.ok) {
-        const errText = await postRes.text();
-        throw new Error('Failed to add sweat: ' + errText);
-      }
+      if (!postRes.ok) throw new Error('Failed to add sweat');
 
-      message.reply(`Sweat added for user ${mojangData.name}!`);
+      await interaction.editReply(`Sweat added for user ${mojangData.name}!`);
     } catch (error) {
-      message.reply(`Error: ${error.message}`);
+      await interaction.editReply(`Error: ${error.message}`);
     }
   }
 });
