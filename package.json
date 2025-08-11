@@ -4,7 +4,8 @@
   "description": "A Discord bot for managing sweats list",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js"
+    "start": "node index.js",
+    "deploy-commands": "node deploy-commands.js"
   },
   "dependencies": {
     "express": "^4.18.2",
