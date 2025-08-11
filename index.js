@@ -94,7 +94,7 @@ client.on('interactionCreate', async interaction => {
 
       if (!postRes.ok) throw new Error('Failed to add sweat');
 
-      await interaction.editReply(`Sweat added for user ${mojangData.name}!`);
+      await interaction.editReply(`Successfully added ${mojangData.name} to the sweatbeater!`);
     } catch (error) {
       await interaction.editReply(`Error: ${error.message}`);
     }
