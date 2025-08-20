@@ -27,10 +27,6 @@ const commands = [
       option.setName('zoiv')
         .setDescription('Beaten by Zoiv?')
     )
-        .addBooleanOption(option =>
-      option.setName('cheating')
-        .setDescription('Player was cheating?')
-    )
     .toJSON()
 ];
 
