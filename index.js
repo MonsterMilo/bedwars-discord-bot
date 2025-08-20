@@ -45,7 +45,6 @@ client.on('interactionCreate', async interaction => {
 
   if (interaction.commandName === 'addsweat') {
     const username = interaction.options.getString('username');
-    const cheating = interaction.options.getBoolean('cheating') || false;
     const beatenByFlags = {
       milo: interaction.options.getBoolean('milo') || false,
       potat: interaction.options.getBoolean('potat') || false,
@@ -83,7 +82,6 @@ client.on('interactionCreate', async interaction => {
         potat: beatenByFlags.potat,
         aballs: beatenByFlags.aballs,
         zoiv: beatenByFlags.zoiv,
-        cheating: cheating,
         uuid,
         dateAdded: new Date().toISOString(),
       };
